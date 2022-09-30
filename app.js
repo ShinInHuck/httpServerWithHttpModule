@@ -17,7 +17,7 @@ const users = [
     },
   ];
   
-  const posts = [
+const posts = [
     {
       id: 1,
       title: "간단한 HTTP API 개발 시작!",
@@ -66,7 +66,39 @@ const httpRequestListener = function(request, response) {
 
         }
     }
+    if (method === 'GET') {
+      if (url === '/ping') {
+          response.writeHead(200, {'Content-Type' : 'application/json'})
+          response.end(JSON.stringify({ message : "postCreated"}));
+      };
+  } else if (method === "POST") {
+      if (url === "/posts") {
+          let body = "";
+
+          request.on("data", (data) => {
+              body += data;
+          });
+
+          request.on("end", () => {
+            const post = JSON.parse(body);
+
+            posts.push({
+                id: post.id,
+                title: post.title,
+                content: post.content,
+                userId: post.userId,
+
+            });
+              response.writeHead(200, {'Content-Type' : 'application/json'});        
+              response.end(JSON.stringify({"posts" : posts}));
+      
+          });
+
+      }
+  }
 }
+
+
 
 server.on("request", httpRequestListener)
 
